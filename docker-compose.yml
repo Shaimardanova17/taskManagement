@@ -1,0 +1,30 @@
+services:
+  app:  # Сервис для Spring Boot приложения
+    container_name: app  # Имя контейнера
+    image: azel/app:1.0.0  # Используемый образ (или будет собран локально)
+    restart: always  # Автоматический перезапуск при сбое
+    build: .  # Сборка образа из текущей директории (Dockerfile)
+    ports:
+      - "8080:8080"  # Проброс порта: внешний 8080 → внутренний 8080
+    depends_on:
+      - db  # Сначала должен запуститься контейнер с базой данных
+    environment:  # Переменные окружения для настройки подключения к БД
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+  db:  # Сервис базы данных PostgreSQL
+    container_name: db  # Имя контейнера
+    image: postgres:15  # Образ PostgreSQL версии 15
+    restart: always  # Перезапуск при сбое
+    environment:  # Параметры инициализации БД
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Хранение данных на volume для сохранности
+    ports:
+      - "5432:5432"  # Проброс порта: внешний 5432 → внутренний 5432
+
+volumes:
+  pgdata: {}  # Объявление volume для хранения данных PostgreSQL
